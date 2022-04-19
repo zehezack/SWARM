@@ -36,11 +36,12 @@ namespace SWARM.Client.Pages.Course
             IsLoading = true;
             await LoadLookupData();
             IsLoading = false;
-            StateHasChanged();
+            await base.OnInitializedAsync();
+
         }
         private async Task LoadLookupData()
         {
-           // lstcourse = await Http.GetFromJsonAsync<List<Course>>("api/Course/GetCourses", options);
+          // lstcourse = await Http.GetFromJsonAsync<List<Course>>("api/Course/GetCourses", options);
         }
 
         public async Task ReadItems(GridReadEventArgs args)
@@ -74,7 +75,11 @@ namespace SWARM.Client.Pages.Course
             String EmptyGuid = Guid.Empty.ToString();
             NavManager.NavigateTo($"/Course/Detail/{EmptyGuid}");
         }
-
+        private void DeleteCourse(GridCommandEventArgs e)
+        {
+            CourseDTO _CourseDTO = e.Item as CourseDTO;
+            NavManager.NavigateTo($"/Course/DeleteCourse/{_CourseDTO.CourseNo}");
+        }
     }
 
 
