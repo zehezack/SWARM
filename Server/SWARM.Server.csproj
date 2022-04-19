@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Client\SWARM.Client.csproj" />
+    <ProjectReference Include="..\EF\SWARM.EF.csproj" />
     <ProjectReference Include="..\Shared\SWARM.Shared.csproj" />
   </ItemGroup>
 

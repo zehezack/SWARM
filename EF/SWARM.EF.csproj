@@ -5,10 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Telerik.DataSource" Version="2.1.1" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
 </Project>

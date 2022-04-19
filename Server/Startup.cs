@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using System.Linq;
 using SWARM.Server.Data;
 using SWARM.Server.Models;
+using SWARM.EF.Data;
 
 namespace SWARM.Server
 {
@@ -27,8 +28,12 @@ namespace SWARM.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseOracle(
+                    Configuration.GetConnectionString("SwarmOracleConnection")));
+
+            services.AddDbContext<SWARMOracleContext>(options =>
+                options.UseOracle(
+                    Configuration.GetConnectionString("SwarmOracleConnection")));
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
