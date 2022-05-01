@@ -19,10 +19,10 @@ using Telerik.DataSource.Extensions;
 
 namespace SWARM.Server.Controllers.Application
 {
-    public class CourseController : BaseController<Course>, IBaseController<Course>
+    public class ZipcodeController : BaseController<Zipcode>, IBaseController<Zipcode>
     {
 
-        public CourseController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
+        public ZipcodeController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
             : base(context, httpContextAccessor)
         {
 
@@ -35,8 +35,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
-                return Ok(lstCourses);
+                List<Zipcode> lstZipcodes = await _context.Zipcodes.OrderBy(x => x.Zip).ToListAsync();
+                return Ok(lstZipcodes);
             }
             catch (Exception ex)
             {
@@ -50,8 +50,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                return Ok(itmCourse);
+                Zipcode itmZipcodes = await _context.Zipcodes.Where(x => x.Zip == KeyValue.ToString()).FirstOrDefaultAsync();
+                return Ok(itmZipcodes);
             }
             catch (Exception ex)
             {
@@ -65,10 +65,10 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                _context.Remove(itmCourse);
+                Zipcode itmZipcodes = await _context.Zipcodes.Where(x => x.Zip == KeyValue.ToString()).FirstOrDefaultAsync();
+                _context.Remove(itmZipcodes);
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(itmZipcodes);
             }
             catch (Exception ex)
             {
@@ -78,25 +78,23 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Course _Course) //overwrite
+        public async Task<IActionResult> Put([FromBody] Zipcode _Zipcode) //overwrite
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Zipcodes.Where(x => x.Zip == _Zipcode.Zip).FirstOrDefaultAsync();
 
                 if (context == null)
                 {
-                    await Post(_Course);
+                    await Post(_Zipcode);
                     return Ok();
                 }
 
-                context.CourseNo = _Course.CourseNo;
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context.Zip = _Zipcode.Zip;
+                context.City = _Zipcode.City;
+                context.State = _Zipcode.State;
+
 
 
                 _context.Update(context);
@@ -114,27 +112,26 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Course _Course) //insert
+        public async Task<IActionResult> Post([FromBody] Zipcode _Zipcode) //insert
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Zipcodes.Where(x => x.Zip == _Zipcode.Zip).FirstOrDefaultAsync();
 
                 if (context != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Record Exists");
                 }
 
-                context = new Course();
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context = new Zipcode();
 
-                
-                _context.Courses.Add(context);
+                context.Zip = _Zipcode.Zip;
+                context.City = _Zipcode.City;
+                context.State = _Zipcode.State;
+
+
+                _context.Zipcodes.Add(context);
 
                 await _context.SaveChangesAsync();
                 trans.Commit();

@@ -19,10 +19,10 @@ using Telerik.DataSource.Extensions;
 
 namespace SWARM.Server.Controllers.Application
 {
-    public class CourseController : BaseController<Course>, IBaseController<Course>
+    public class SectionController : BaseController<Section>, IBaseController<Section>
     {
 
-        public CourseController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
+        public SectionController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
             : base(context, httpContextAccessor)
         {
 
@@ -35,8 +35,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
-                return Ok(lstCourses);
+                List<Section> lstSections = await _context.Sections.OrderBy(x => x.SectionId).ToListAsync();
+                return Ok(lstSections);
             }
             catch (Exception ex)
             {
@@ -50,8 +50,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                return Ok(itmCourse);
+                Section itmSections = await _context.Sections.Where(x => x.SectionId == KeyValue).FirstOrDefaultAsync();
+                return Ok(itmSections);
             }
             catch (Exception ex)
             {
@@ -65,10 +65,10 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                _context.Remove(itmCourse);
+                Section itmSections = await _context.Sections.Where(x => x.SectionId == KeyValue).FirstOrDefaultAsync();
+                _context.Remove(itmSections);
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(itmSections);
             }
             catch (Exception ex)
             {
@@ -78,26 +78,31 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Course _Course) //overwrite
+        public async Task<IActionResult> Put([FromBody] Section _Section) //overwrite
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Sections.Where(x => x.SectionId == _Section.SectionId).FirstOrDefaultAsync();
 
                 if (context == null)
                 {
-                    await Post(_Course);
+                    await Post(_Section);
                     return Ok();
                 }
 
-                context.CourseNo = _Course.CourseNo;
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
-
+                context.CourseNo = _Section.CourseNo;
+                context.SectionNo = _Section.SectionNo;
+                context.StartDateTime = _Section.StartDateTime;
+                context.Location = _Section.Location;
+                context.InstructorId = _Section.InstructorId;
+                context.Capacity = _Section.Capacity;
+                context.SchoolId = _Section.SchoolId;
+                context.Course = _Section.Course;
+                context.Instructor = _Section.Instructor;
+                context.School = _Section.School;
+                context.Enrollments = _Section.Enrollments;
+                context.GradeTypeWeights = _Section.GradeTypeWeights;
 
                 _context.Update(context);
 
@@ -114,27 +119,35 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Course _Course) //insert
+        public async Task<IActionResult> Post([FromBody] Section _Section) //insert
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Sections.Where(x => x.SectionId == _Section.SectionId).FirstOrDefaultAsync();
 
                 if (context != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Record Exists");
                 }
 
-                context = new Course();
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
 
-                
-                _context.Courses.Add(context);
+                context = new Section();
+                context.CourseNo = _Section.CourseNo;
+                context.SectionNo = _Section.SectionNo;
+                context.StartDateTime = _Section.StartDateTime;
+                context.Location = _Section.Location;
+                context.InstructorId = _Section.InstructorId;
+                context.Capacity = _Section.Capacity;
+                context.SchoolId = _Section.SchoolId;
+                context.Course = _Section.Course;
+                context.Instructor = _Section.Instructor;
+                context.School = _Section.School;
+                context.Enrollments = _Section.Enrollments;
+                context.GradeTypeWeights = _Section.GradeTypeWeights;
+
+
+                _context.Sections.Add(context);
 
                 await _context.SaveChangesAsync();
                 trans.Commit();

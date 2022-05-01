@@ -19,10 +19,10 @@ using Telerik.DataSource.Extensions;
 
 namespace SWARM.Server.Controllers.Application
 {
-    public class CourseController : BaseController<Course>, IBaseController<Course>
+    public class GradeTypeController : BaseController<GradeType>, IBaseController<GradeType>
     {
 
-        public CourseController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
+        public GradeTypeController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
             : base(context, httpContextAccessor)
         {
 
@@ -30,13 +30,20 @@ namespace SWARM.Server.Controllers.Application
 
 
         [HttpGet]
+        [Route("{KeyValue}")]
+        Task<IActionResult> IBaseController<GradeType>.Get(int KeyValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
         [Route("Get")]
         public async Task<IActionResult> Get()
         {
             try
             {
-                List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
-                return Ok(lstCourses);
+                List<GradeType> lstGradeTypes = await _context.GradeTypes.OrderBy(x => x.SchoolId).ToListAsync();
+                return Ok(lstGradeTypes);
             }
             catch (Exception ex)
             {
@@ -45,13 +52,13 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpGet]
-        [Route("Get/{KeyValue}/")]
-        public async Task<IActionResult> Get(int KeyValue)
+        [Route("Get/{KeyValue1}/{KeyValue2}")]
+        public async Task<IActionResult> Get(int KeyValue1, int KeyValue2)
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                return Ok(itmCourse);
+                GradeType itmGradeTypeCode = await _context.GradeTypes.Where(x => x.SchoolId == KeyValue1 && x.GradeTypeCode == KeyValue2.ToString()).FirstOrDefaultAsync();
+                return Ok(itmGradeTypeCode);
             }
             catch (Exception ex)
             {
@@ -60,13 +67,20 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpDelete]
-        [Route("Delete/{KeyValue}")]
-        public async Task<IActionResult> Delete(int KeyValue)
+        [Route("{KeyValue}")]
+        Task<IActionResult> IBaseController<GradeType>.Delete(int KeyValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpDelete]
+        [Route("Delete/{KeyValue1}/{KeyValue2}")]
+        public async Task<IActionResult> Delete(int KeyValue1, int KeyValue2)
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                _context.Remove(itmCourse);
+                GradeType itmGradeTypeCode = await _context.GradeTypes.Where(x => x.SchoolId == KeyValue1 && x.GradeTypeCode == KeyValue2.ToString()).FirstOrDefaultAsync();
+                _context.Remove(itmGradeTypeCode);
                 await _context.SaveChangesAsync();
                 return Ok();
             }
@@ -78,25 +92,23 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Course _Course) //overwrite
+        public async Task<IActionResult> Put([FromBody] GradeType _GradeType) //overwrite
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.GradeTypes.Where(x => x.SchoolId == _GradeType.SchoolId && x.GradeTypeCode == _GradeType.GradeTypeCode).FirstOrDefaultAsync();
 
                 if (context == null)
                 {
-                    await Post(_Course);
+                    await Post(_GradeType);
                     return Ok();
                 }
 
-                context.CourseNo = _Course.CourseNo;
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context.SchoolId = _GradeType.SchoolId;
+                context.GradeTypeCode = _GradeType.GradeTypeCode;
+                context.Description = _GradeType.Description;
+
 
 
                 _context.Update(context);
@@ -114,27 +126,25 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Course _Course) //insert
+        public async Task<IActionResult> Post([FromBody] GradeType _GradeType) //insert
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.GradeTypes.Where(x => x.SchoolId == _GradeType.SchoolId && x.GradeTypeCode == _GradeType.GradeTypeCode).FirstOrDefaultAsync();
 
                 if (context != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Record Exists");
                 }
 
-                context = new Course();
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context = new GradeType();
 
-                
-                _context.Courses.Add(context);
+                context.SchoolId = _GradeType.SchoolId;
+                context.GradeTypeCode = _GradeType.GradeTypeCode;
+                context.Description = _GradeType.Description;
+
+                _context.GradeTypes.Add(context);
 
                 await _context.SaveChangesAsync();
                 trans.Commit();

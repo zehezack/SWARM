@@ -19,10 +19,10 @@ using Telerik.DataSource.Extensions;
 
 namespace SWARM.Server.Controllers.Application
 {
-    public class CourseController : BaseController<Course>, IBaseController<Course>
+    public class GradeController : BaseController<Grade>, IBaseController<Grade>
     {
 
-        public CourseController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
+        public GradeController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
             : base(context, httpContextAccessor)
         {
 
@@ -35,8 +35,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
-                return Ok(lstCourses);
+                List<Grade> lstGrades = await _context.Grades.OrderBy(x => x.SchoolId).ToListAsync();
+                return Ok(lstGrades);
             }
             catch (Exception ex)
             {
@@ -50,8 +50,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                return Ok(itmCourse);
+                List<Grade> lstGrades = await _context.Grades.Where(x => x.StudentId == KeyValue).ToListAsync();
+                return Ok(lstGrades);
             }
             catch (Exception ex)
             {
@@ -59,14 +59,23 @@ namespace SWARM.Server.Controllers.Application
             }
         }
 
+
         [HttpDelete]
-        [Route("Delete/{KeyValue}")]
-        public async Task<IActionResult> Delete(int KeyValue)
+        [Route("{KeyValue}")]
+        Task<IActionResult> IBaseController<Grade>.Delete(int KeyValue)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [HttpDelete]
+        [Route("Delete/{KeyValue1}/{KeyValue2}/{KeyValue3}/{KeyValue4}")]
+        public async Task<IActionResult> Delete(int KeyValue1, int KeyValue2, int KeyValue3, string KeyValue4)
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                _context.Remove(itmCourse);
+                Grade itmGrades = await _context.Grades.Where(x => x.SchoolId == KeyValue1 && x.StudentId == KeyValue2 && x.SectionId == KeyValue3 && x.GradeTypeCode == KeyValue4).FirstOrDefaultAsync();
+                _context.Remove(itmGrades);
                 await _context.SaveChangesAsync();
                 return Ok();
             }
@@ -78,25 +87,26 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Course _Course) //overwrite
+        public async Task<IActionResult> Put([FromBody] Grade _Grade) //overwrite
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Grades.Where(x => x.SchoolId == _Grade.SchoolId && x.StudentId == _Grade.StudentId && x.SectionId == _Grade.SectionId && x.GradeTypeCode == _Grade.GradeTypeCode).FirstOrDefaultAsync();
 
                 if (context == null)
                 {
-                    await Post(_Course);
+                    await Post(_Grade);
                     return Ok();
                 }
 
-                context.CourseNo = _Course.CourseNo;
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context.SchoolId = _Grade.SchoolId;
+                context.StudentId = _Grade.StudentId;
+                context.SectionId = _Grade.SectionId;
+                context.GradeTypeCode = _Grade.GradeTypeCode;
+                context.GradeCodeOccurrence = _Grade.GradeCodeOccurrence;
+                context.NumericGrade = _Grade.NumericGrade;
+                context.Comments = _Grade.Comments;
 
 
                 _context.Update(context);
@@ -114,27 +124,30 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Course _Course) //insert
+        public async Task<IActionResult> Post([FromBody] Grade _Grade) //insert
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Grades.Where(x => x.SchoolId == _Grade.SchoolId && x.StudentId == _Grade.StudentId && x.SectionId == _Grade.SectionId && x.GradeTypeCode == _Grade.GradeTypeCode).FirstOrDefaultAsync();
 
                 if (context != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Record Exists");
                 }
 
-                context = new Course();
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context = new Grade();
 
-                
-                _context.Courses.Add(context);
+                context.SchoolId = _Grade.SchoolId;
+                context.StudentId = _Grade.StudentId;
+                context.SectionId = _Grade.SectionId;
+                context.GradeTypeCode = _Grade.GradeTypeCode;
+                context.GradeCodeOccurrence = _Grade.GradeCodeOccurrence;
+                context.NumericGrade = _Grade.NumericGrade;
+                context.Comments = _Grade.Comments;
+
+
+                _context.Grades.Add(context);
 
                 await _context.SaveChangesAsync();
                 trans.Commit();

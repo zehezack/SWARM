@@ -19,10 +19,10 @@ using Telerik.DataSource.Extensions;
 
 namespace SWARM.Server.Controllers.Application
 {
-    public class CourseController : BaseController<Course>, IBaseController<Course>
+    public class StudentController : BaseController<Student>, IBaseController<Student>
     {
 
-        public CourseController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
+        public StudentController(SWARMOracleContext context, IHttpContextAccessor httpContextAccessor)
             : base(context, httpContextAccessor)
         {
 
@@ -35,8 +35,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
-                return Ok(lstCourses);
+                List<Student> lstStudents = await _context.Students.OrderBy(x => x.StudentId).ToListAsync();
+                return Ok(lstStudents);
             }
             catch (Exception ex)
             {
@@ -50,8 +50,8 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                return Ok(itmCourse);
+                Student itmStudents = await _context.Students.Where(x => x.StudentId == KeyValue).FirstOrDefaultAsync();
+                return Ok(itmStudents);
             }
             catch (Exception ex)
             {
@@ -65,10 +65,10 @@ namespace SWARM.Server.Controllers.Application
         {
             try
             {
-                Course itmCourse = await _context.Courses.Where(x => x.CourseNo == KeyValue).FirstOrDefaultAsync();
-                _context.Remove(itmCourse);
+                Student itmStudents = await _context.Students.Where(x => x.StudentId == KeyValue).FirstOrDefaultAsync();
+                _context.Remove(itmStudents);
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(itmStudents);
             }
             catch (Exception ex)
             {
@@ -78,25 +78,27 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Course _Course) //overwrite
+        public async Task<IActionResult> Put([FromBody] Student _Student) //overwrite
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Students.Where(x => x.StudentId == _Student.StudentId).FirstOrDefaultAsync();
 
                 if (context == null)
                 {
-                    await Post(_Course);
+                    await Post(_Student);
                     return Ok();
                 }
 
-                context.CourseNo = _Course.CourseNo;
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context.StudentId = _Student.StudentId;
+                context.Salutation = _Student.Salutation;
+                context.FirstName = _Student.FirstName;
+                context.StreetAddress = _Student.StreetAddress;
+                context.Zip = _Student.Zip;
+                context.Phone = _Student.Phone;
+                context.Employer = _Student.Employer;
+                context.RegistrationDate = _Student.RegistrationDate;
 
 
                 _context.Update(context);
@@ -114,27 +116,30 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Course _Course) //insert
+        public async Task<IActionResult> Post([FromBody] Student _Student) //insert
         {
             var trans = _context.Database.BeginTransaction();
             try
             {
-                var context = await _context.Courses.Where(x => x.CourseNo == _Course.CourseNo).FirstOrDefaultAsync();
+                var context = await _context.Students.Where(x => x.StudentId == _Student.StudentId).FirstOrDefaultAsync();
 
                 if (context != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Record Exists");
                 }
 
-                context = new Course();
-                context.Cost = _Course.Cost;
-                context.Description = _Course.Description;
-                context.Prerequisite = _Course.Prerequisite;
-                context.PrerequisiteSchoolId = _Course.PrerequisiteSchoolId;
-                context.SchoolId = _Course.SchoolId;
+                context = new Student();
+                context.StudentId = _Student.StudentId;
+                context.Salutation = _Student.Salutation;
+                context.FirstName = _Student.FirstName;
+                context.StreetAddress = _Student.StreetAddress;
+                context.Zip = _Student.Zip;
+                context.Phone = _Student.Phone;
+                context.Employer = _Student.Employer;
+                context.RegistrationDate = _Student.RegistrationDate;
 
-                
-                _context.Courses.Add(context);
+
+                _context.Students.Add(context);
 
                 await _context.SaveChangesAsync();
                 trans.Commit();
